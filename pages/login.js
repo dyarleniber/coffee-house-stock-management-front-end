@@ -1,14 +1,19 @@
+import { useRouter } from "next/router";
+import { useState } from "react";
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import Button from "@material-ui/core/Button";
-import CssBaseline from "@material-ui/core/CssBaseline";
 import TextField from "@material-ui/core/TextField";
 import Box from "@material-ui/core/Box";
 import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
+import Snackbar from "@material-ui/core/Snackbar";
+import MuiAlert from "@material-ui/lab/Alert";
 import Copyright from "../src/components/Copyright";
 import Logo from "../src/components/Logo";
+import api from "../src/services/api";
+import { getAPIValidationError } from "../src/utils/validation";
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -36,21 +41,65 @@ const schema = yup.object().shape({
 });
 
 export default function Login() {
+  const router = useRouter();
+
   const classes = useStyles();
+
+  const [isLoading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [errorOpen, setErrorOpen] = useState(false);
 
   const { register, handleSubmit, errors } = useForm({
     resolver: yupResolver(schema),
   });
 
-  const onSubmit = (data) => console.log(data);
+  const handleErrorClose = (event, reason) => {
+    if (reason !== "clickaway") {
+      setErrorOpen(false);
+    }
+  };
+
+  const onSubmit = async (data) => {
+    if (isLoading) return;
+    const { email, password } = data;
+    try {
+      setLoading(true);
+      setErrorMessage("");
+      setErrorOpen(false);
+      const response = await api.post("/login", { email, password });
+      console.log(response.data);
+      router.push("/products");
+    } catch (e) {
+      setLoading(false);
+      const message = "Incorrect email or password";
+      const error = getAPIValidationError(e.response, message);
+      setErrorMessage(error);
+      setErrorOpen(true);
+    }
+  };
 
   return (
     <Container component="main" maxWidth="xs">
-      <CssBaseline />
       <div className={classes.paper}>
         <div className={classes.logo}>
           <Logo />
         </div>
+
+        <Snackbar
+          open={errorOpen}
+          autoHideDuration={6000}
+          onClose={handleErrorClose}
+        >
+          <MuiAlert
+            elevation={6}
+            variant="filled"
+            onClose={handleErrorClose}
+            severity="error"
+          >
+            {errorMessage}
+          </MuiAlert>
+        </Snackbar>
+
         <form
           className={classes.form}
           noValidate
@@ -89,11 +138,13 @@ export default function Login() {
             color="primary"
             variant="contained"
             className={classes.submit}
+            disabled={isLoading}
           >
-            Log In
+            {isLoading ? "Loading…" : "Log In"}
           </Button>
         </form>
       </div>
+
       <Box mt={8}>
         <Copyright />
       </Box>
