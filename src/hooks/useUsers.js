@@ -10,7 +10,7 @@ const fetcher = async (url) => {
 export default function useUsers(query) {
   const { data, error, mutate } = useSWR("/users?" + stringify(query), fetcher);
 
-  const { users, total, page, totalPages } = data || {};
+  const { users, total, page, totalPages, limit } = data || {};
   const isLoading = !error && !data;
   const isError = error;
 
@@ -19,6 +19,7 @@ export default function useUsers(query) {
     total,
     page,
     totalPages,
+    limit,
     isLoading,
     isError,
     mutate,

@@ -13,7 +13,7 @@ export default function useProducts(query) {
     fetcher
   );
 
-  const { products, total, page, totalPages } = data || {};
+  const { products, total, page, totalPages, limit } = data || {};
   const isLoading = !error && !data;
   const isError = error;
 
@@ -22,6 +22,7 @@ export default function useProducts(query) {
     total,
     page,
     totalPages,
+    limit,
     isLoading,
     isError,
     mutate,

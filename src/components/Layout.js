@@ -15,7 +15,9 @@ import IconButton from "@material-ui/core/IconButton";
 import AccountCircle from "@material-ui/icons/AccountCircle";
 import MenuItem from "@material-ui/core/MenuItem";
 import Menu from "@material-ui/core/Menu";
+import Box from "@material-ui/core/Box";
 import Logo from "../components/Logo";
+import Copyright from "../components/Copyright";
 import appConfig from "../config/app";
 
 const drawerWidth = 240;
@@ -133,6 +135,9 @@ export default function Layout({ children }) {
       <main className={classes.content}>
         <div className={classes.toolbar} />
         {children}
+        <Box mt={8}>
+          <Copyright />
+        </Box>
       </main>
     </div>
   );

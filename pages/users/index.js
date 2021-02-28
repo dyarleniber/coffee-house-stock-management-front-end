@@ -1,3 +1,4 @@
+import { useRouter } from "next/router";
 import { makeStyles } from "@material-ui/core/styles";
 import Paper from "@material-ui/core/Paper";
 import Table from "@material-ui/core/Table";
@@ -6,6 +7,7 @@ import TableCell from "@material-ui/core/TableCell";
 import TableContainer from "@material-ui/core/TableContainer";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
+import TablePagination from "@material-ui/core/TablePagination";
 import Typography from "@material-ui/core/Typography";
 import Skeleton from "@material-ui/lab/Skeleton";
 import useUsers from "../../src/hooks/useUsers";
@@ -21,6 +23,7 @@ const useStyles = makeStyles((theme) => ({
   },
   container: {
     width: "100%",
+    maxHeight: 440,
   },
   skeleton: {
     width: "100%",
@@ -35,9 +38,23 @@ const columns = [
 ];
 
 export default function List() {
+  const router = useRouter();
+
   const classes = useStyles();
 
-  const { users, isLoading, isError } = useUsers();
+  const { pathname, query } = router;
+
+  const { users, page, total, limit, isLoading, isError } = useUsers(query);
+
+  const handleChangePage = (event, newPage) => {
+    const url = {
+      pathname,
+      query: { ...query, page: newPage + 1 },
+    };
+    const as = undefined;
+    const options = { shallow: true };
+    router.push(url, as, options);
+  };
 
   return (
     <Layout>
@@ -65,15 +82,18 @@ export default function List() {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {users.map((row) => {
+                    {users.map((row, index) => {
                       return (
-                        <TableRow hover key={row.name}>
+                        <TableRow hover key={`${row.name}-${index}`}>
                           {columns.map((column) => {
                             const value = Array.isArray(column.name)
                               ? row[column.name[0]][column.name[1]]
                               : row[column.name];
                             return (
-                              <TableCell key={column.name} align={column.align}>
+                              <TableCell
+                                key={`${column.name}-${index}`}
+                                align={column.align}
+                              >
                                 {column.format ? column.format(value) : value}
                               </TableCell>
                             );
@@ -84,6 +104,14 @@ export default function List() {
                   </TableBody>
                 </Table>
               </TableContainer>
+              <TablePagination
+                component="div"
+                count={total}
+                rowsPerPage={limit}
+                rowsPerPageOptions={[limit]}
+                page={page - 1}
+                onChangePage={handleChangePage}
+              />
             </Paper>
           ) : (
             <div className={classes.skeleton}>
