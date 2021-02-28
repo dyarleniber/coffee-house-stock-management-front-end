@@ -1,32 +1,14 @@
 import { useRouter } from "next/router";
 import { makeStyles } from "@material-ui/core/styles";
-import Paper from "@material-ui/core/Paper";
-import Table from "@material-ui/core/Table";
-import TableBody from "@material-ui/core/TableBody";
-import TableCell from "@material-ui/core/TableCell";
-import TableContainer from "@material-ui/core/TableContainer";
-import TableHead from "@material-ui/core/TableHead";
-import TableRow from "@material-ui/core/TableRow";
-import TablePagination from "@material-ui/core/TablePagination";
 import Typography from "@material-ui/core/Typography";
-import Skeleton from "@material-ui/lab/Skeleton";
 import useUsers from "../../src/hooks/useUsers";
 import Layout from "../../src/components/Layout";
+import CustomTable from "../../src/components/CustomTable";
 
 const useStyles = makeStyles((theme) => ({
   title: {
     margin: theme.spacing(2),
     marginBottom: theme.spacing(4),
-  },
-  root: {
-    width: "100%",
-  },
-  container: {
-    width: "100%",
-    maxHeight: 440,
-  },
-  skeleton: {
-    width: "100%",
   },
 }));
 
@@ -42,86 +24,25 @@ export default function List() {
 
   const classes = useStyles();
 
-  const { pathname, query } = router;
+  const { query } = router;
 
   const { users, page, total, limit, isLoading, isError } = useUsers(query);
-
-  const handleChangePage = (event, newPage) => {
-    const url = {
-      pathname,
-      query: { ...query, page: newPage + 1 },
-    };
-    const as = undefined;
-    const options = { shallow: true };
-    router.push(url, as, options);
-  };
 
   return (
     <Layout>
       <Typography className={classes.title} variant="h4" gutterBottom>
         Users list
       </Typography>
-
-      {isError ? (
-        <Typography variant="h6" gutterBottom>
-          Something went wrong, try again later
-        </Typography>
-      ) : (
-        <>
-          {!isLoading ? (
-            <Paper className={classes.root}>
-              <TableContainer className={classes.container}>
-                <Table stickyHeader aria-label="sticky table">
-                  <TableHead>
-                    <TableRow>
-                      {columns.map((column) => (
-                        <TableCell key={column.label} align={column.align}>
-                          {column.label}
-                        </TableCell>
-                      ))}
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {users.map((row, index) => {
-                      return (
-                        <TableRow hover key={`${row.name}-${index}`}>
-                          {columns.map((column) => {
-                            const value = Array.isArray(column.name)
-                              ? row[column.name[0]][column.name[1]]
-                              : row[column.name];
-                            return (
-                              <TableCell
-                                key={`${column.name}-${index}`}
-                                align={column.align}
-                              >
-                                {column.format ? column.format(value) : value}
-                              </TableCell>
-                            );
-                          })}
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-              <TablePagination
-                component="div"
-                count={total}
-                rowsPerPage={limit}
-                rowsPerPageOptions={[limit]}
-                page={page - 1}
-                onChangePage={handleChangePage}
-              />
-            </Paper>
-          ) : (
-            <div className={classes.skeleton}>
-              <Skeleton />
-              <Skeleton />
-              <Skeleton />
-            </div>
-          )}
-        </>
-      )}
+      <CustomTable
+        columns={columns}
+        rows={users}
+        isLoading={isLoading}
+        isError={isError}
+        pagination={true}
+        page={page}
+        total={total}
+        limit={limit}
+      />
     </Layout>
   );
 }
