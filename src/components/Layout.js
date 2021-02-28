@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useRouter } from "next/router";
 import Link from "next/link";
 import { makeStyles } from "@material-ui/core/styles";
 import Drawer from "@material-ui/core/Drawer";
@@ -16,6 +17,7 @@ import AccountCircle from "@material-ui/icons/AccountCircle";
 import MenuItem from "@material-ui/core/MenuItem";
 import Menu from "@material-ui/core/Menu";
 import Box from "@material-ui/core/Box";
+import Breadcrumbs from "@material-ui/core/Breadcrumbs";
 import Logo from "../components/Logo";
 import Copyright from "../components/Copyright";
 import appConfig from "../config/app";
@@ -56,6 +58,11 @@ const { name, menuItems } = appConfig;
 
 export default function Layout({ children }) {
   const classes = useStyles();
+
+  const router = useRouter();
+
+  const routerBreadcrumbs = router.pathname?.split("/");
+  const breadcrumbs = [appConfig.name, ...routerBreadcrumbs];
 
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
@@ -134,6 +141,19 @@ export default function Layout({ children }) {
       </Drawer>
       <main className={classes.content}>
         <div className={classes.toolbar} />
+        {!!breadcrumbs?.length && (
+          <Breadcrumbs aria-label="breadcrumb">
+            {breadcrumbs.map((breadcrumb) => {
+              if (breadcrumb) {
+                return (
+                  <Typography color="inherit" key={breadcrumb}>
+                    {breadcrumb}
+                  </Typography>
+                );
+              }
+            })}
+          </Breadcrumbs>
+        )}
         {children}
         <Box mt={8}>
           <Copyright />
