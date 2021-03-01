@@ -6,8 +6,8 @@ export default function Logo() {
       src="/logo.png"
       alt="Logo"
       layout="responsive"
-      width={2197}
-      height={1662}
+      width={501}
+      height={380}
     />
   );
 }
