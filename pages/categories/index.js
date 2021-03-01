@@ -1,5 +1,6 @@
 import { makeStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
+import managerMiddleware from "../../src/middlewares/manager";
 import useCategories from "../../src/hooks/useCategories";
 import Layout from "../../src/components/Layout";
 import CustomTable from "../../src/components/CustomTable";
@@ -35,4 +36,12 @@ export default function List() {
       />
     </Layout>
   );
+}
+
+export async function getServerSideProps(context) {
+  return managerMiddleware(async (context) => {
+    return {
+      props: {},
+    };
+  })(context);
 }

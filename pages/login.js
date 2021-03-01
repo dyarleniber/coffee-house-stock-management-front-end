@@ -10,9 +10,10 @@ import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
 import Snackbar from "@material-ui/core/Snackbar";
 import MuiAlert from "@material-ui/lab/Alert";
-import Copyright from "../src/components/Copyright";
+import guestMiddleware from "../src/middlewares/guest";
+import { useAuth } from "../src/hooks/useAuth";
 import Logo from "../src/components/Logo";
-import api from "../src/services/api";
+import Copyright from "../src/components/Copyright";
 import { getAPIValidationError } from "../src/utils/validation";
 
 const useStyles = makeStyles((theme) => ({
@@ -45,6 +46,8 @@ export default function Login() {
 
   const classes = useStyles();
 
+  const { signIn } = useAuth();
+
   const [isLoading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [errorOpen, setErrorOpen] = useState(false);
@@ -61,16 +64,22 @@ export default function Login() {
 
   const onSubmit = async (data) => {
     if (isLoading) return;
+
     const { email, password } = data;
+
     try {
       setLoading(true);
-      setErrorMessage("");
       setErrorOpen(false);
-      const response = await api.post("/login", { email, password });
-      console.log(response.data);
+
+      await signIn({
+        email,
+        password,
+      });
+
       router.push("/products");
     } catch (e) {
       setLoading(false);
+
       const message = "Incorrect email or password";
       const error = getAPIValidationError(e.response, message);
       setErrorMessage(error);
@@ -84,21 +93,6 @@ export default function Login() {
         <div className={classes.logo}>
           <Logo />
         </div>
-
-        <Snackbar
-          open={errorOpen}
-          autoHideDuration={6000}
-          onClose={handleErrorClose}
-        >
-          <MuiAlert
-            elevation={6}
-            variant="filled"
-            onClose={handleErrorClose}
-            severity="error"
-          >
-            {errorMessage}
-          </MuiAlert>
-        </Snackbar>
 
         <form
           className={classes.form}
@@ -148,6 +142,29 @@ export default function Login() {
       <Box mt={8}>
         <Copyright />
       </Box>
+
+      <Snackbar
+        open={errorOpen}
+        autoHideDuration={6000}
+        onClose={handleErrorClose}
+      >
+        <MuiAlert
+          elevation={6}
+          variant="filled"
+          onClose={handleErrorClose}
+          severity="error"
+        >
+          {errorMessage}
+        </MuiAlert>
+      </Snackbar>
     </Container>
   );
+}
+
+export async function getServerSideProps(context) {
+  return guestMiddleware(async (context) => {
+    return {
+      props: {},
+    };
+  })(context);
 }

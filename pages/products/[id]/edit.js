@@ -12,6 +12,7 @@ import Snackbar from "@material-ui/core/Snackbar";
 import MuiAlert from "@material-ui/lab/Alert";
 import Grid from "@material-ui/core/Grid";
 import MenuItem from "@material-ui/core/MenuItem";
+import managerMiddleware from "../../../src/middlewares/manager";
 import Layout from "../../../src/components/Layout";
 import ReactHookFormSelect from "../../../src/components/ReactHookFormSelect";
 import CustomDialog from "../../../src/components/CustomDialog";
@@ -347,23 +348,25 @@ export default function Edit({ product, categories }) {
 }
 
 export async function getServerSideProps(context) {
-  const { id } = context.params;
+  return managerMiddleware(async (context) => {
+    const { id } = context.params;
 
-  const productResponse = await api.get(`/products/${id}`);
-  const product = productResponse.data;
-  if (!product) {
+    const productResponse = await api.get(`/products/${id}`);
+    const product = productResponse.data;
+    if (!product) {
+      return {
+        notFound: true,
+      };
+    }
+
+    const categoriesResponse = await api.get("/categories");
+    const categories = categoriesResponse.data;
+
     return {
-      notFound: true,
+      props: {
+        product: toSerializable(product),
+        categories: toSerializable(categories),
+      },
     };
-  }
-
-  const categoriesResponse = await api.get("/categories");
-  const categories = categoriesResponse.data;
-
-  return {
-    props: {
-      product: toSerializable(product),
-      categories: toSerializable(categories),
-    },
-  };
+  })(context);
 }

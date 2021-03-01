@@ -7,7 +7,9 @@ import Button from "@material-ui/core/Button";
 import CloudUploadIcon from "@material-ui/icons/CloudUpload";
 import Snackbar from "@material-ui/core/Snackbar";
 import MuiAlert from "@material-ui/lab/Alert";
+import { useAuth } from "../../src/hooks/useAuth";
 import useProducts from "../../src/hooks/useProducts";
+import authMiddleware from "../../src/middlewares/auth";
 import Layout from "../../src/components/Layout";
 import CustomTable from "../../src/components/CustomTable";
 import CustomDialog from "../../src/components/CustomDialog";
@@ -28,6 +30,8 @@ export default function List() {
   const router = useRouter();
 
   const classes = useStyles();
+
+  const { isManager } = useAuth();
 
   const [alertSeverity, setAlertSeverity] = useState("error");
   const [alertMessage, setAlertMessage] = useState("");
@@ -140,17 +144,21 @@ export default function List() {
       color: "primary",
       handle: handleQuantityUpdateAction,
     },
-    {
+  ];
+
+  if (isManager) {
+    actions.push({
       label: "Edit",
       color: "primary",
       handle: handleEdit,
-    },
-    {
+    });
+
+    actions.push({
       label: "Delete",
       color: "error",
       handle: handleDelete,
-    },
-  ];
+    });
+  }
 
   return (
     <Layout>
@@ -158,16 +166,18 @@ export default function List() {
         Products list
       </Typography>
 
-      <Button
-        variant="contained"
-        color="primary"
-        size="small"
-        className={classes.button}
-        startIcon={<CloudUploadIcon />}
-        onClick={handleNew}
-      >
-        New product
-      </Button>
+      {isManager && (
+        <Button
+          variant="contained"
+          color="primary"
+          size="small"
+          className={classes.button}
+          startIcon={<CloudUploadIcon />}
+          onClick={handleNew}
+        >
+          New product
+        </Button>
+      )}
 
       <CustomTable
         columns={columns}
@@ -222,4 +232,12 @@ export default function List() {
       </Snackbar>
     </Layout>
   );
+}
+
+export async function getServerSideProps(context) {
+  return authMiddleware(async (context) => {
+    return {
+      props: {},
+    };
+  })(context);
 }

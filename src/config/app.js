@@ -1,9 +1,9 @@
 const config = {
   name: "Coffee House",
   menuItems: [
-    { name: "Products", link: "/products" },
-    { name: "Categories", link: "/categories" },
-    { name: "Users", link: "/users" },
+    { name: "Products", link: "/products", manager: false },
+    { name: "Categories", link: "/categories", manager: true },
+    { name: "Users", link: "/users", manager: true },
   ],
 };
 

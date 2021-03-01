@@ -10,6 +10,7 @@ import Snackbar from "@material-ui/core/Snackbar";
 import MuiAlert from "@material-ui/lab/Alert";
 import Grid from "@material-ui/core/Grid";
 import MenuItem from "@material-ui/core/MenuItem";
+import managerMiddleware from "../../src/middlewares/manager";
 import Layout from "../../src/components/Layout";
 import ReactHookFormSelect from "../../src/components/ReactHookFormSelect";
 import api from "../../src/services/api";
@@ -247,9 +248,11 @@ export default function Create({ categories }) {
 }
 
 export async function getServerSideProps(context) {
-  const response = await api.get("/categories");
+  return managerMiddleware(async (context) => {
+    const response = await api.get("/categories");
 
-  return {
-    props: { categories: toSerializable(response.data) },
-  };
+    return {
+      props: { categories: toSerializable(response.data) },
+    };
+  })(context);
 }
