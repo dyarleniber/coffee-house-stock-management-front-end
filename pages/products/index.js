@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { useRouter } from "next/router";
+import fileDownload from "js-file-download";
 import { makeStyles } from "@material-ui/core/styles";
 import TextField from "@material-ui/core/TextField";
 import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
 import CloudUploadIcon from "@material-ui/icons/CloudUpload";
+import CloudDownloadIcon from "@material-ui/icons/CloudDownload";
 import Snackbar from "@material-ui/core/Snackbar";
 import MuiAlert from "@material-ui/lab/Alert";
 import { useAuth } from "../../src/hooks/useAuth";
@@ -23,6 +25,7 @@ const useStyles = makeStyles((theme) => ({
   },
   button: {
     marginBottom: theme.spacing(1),
+    marginLeft: theme.spacing(1),
   },
 }));
 
@@ -38,6 +41,7 @@ export default function List() {
   const [alertOpen, setAlertOpen] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [isDialogLoading, setDialogLoading] = useState(false);
+  const [isDownloadLoading, setDownloadLoading] = useState(false);
   const [product, setProduct] = useState();
 
   const { query } = router;
@@ -54,6 +58,25 @@ export default function List() {
 
   const handleNew = () => {
     router.push(`/products/create`);
+  };
+
+  const handleDownload = async () => {
+    try {
+      setDownloadLoading(true);
+      setAlertOpen(false);
+
+      const response = await api.get(`/products/download`);
+      fileDownload(response.data, `products-${Date.now()}.csv`);
+
+      setDownloadLoading(false);
+    } catch (e) {
+      setDownloadLoading(false);
+
+      const error = getAPIValidationError(e.response);
+      setAlertSeverity("error");
+      setAlertMessage(error);
+      setAlertOpen(true);
+    }
   };
 
   const handleEdit = ({ id }) => {
@@ -178,6 +201,18 @@ export default function List() {
           New product
         </Button>
       )}
+
+      <Button
+        variant="contained"
+        color="primary"
+        size="small"
+        className={classes.button}
+        startIcon={<CloudDownloadIcon />}
+        onClick={handleDownload}
+        disabled={isDownloadLoading}
+      >
+        {isDownloadLoading ? "Loading…" : "Download all data"}
+      </Button>
 
       <CustomTable
         columns={columns}

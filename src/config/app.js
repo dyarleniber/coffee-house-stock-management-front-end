@@ -5,6 +5,7 @@ const config = {
     { name: "Categories", link: "/categories", manager: true },
     { name: "Users", link: "/users", manager: true },
     { name: "Roles", link: "/roles", manager: true },
+    { name: "Notifications", link: "/notifications", manager: false },
   ],
 };
 
