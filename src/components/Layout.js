@@ -61,8 +61,10 @@ export default function Layout({ children }) {
 
   const router = useRouter();
 
-  const routerBreadcrumbs = router.pathname?.split("/");
-  const breadcrumbs = [appConfig.name, ...routerBreadcrumbs];
+  let breadcrumbs;
+  breadcrumbs = router.pathname?.replace("/[id]", "");
+  breadcrumbs = breadcrumbs.split("/");
+  breadcrumbs = [appConfig.name, ...breadcrumbs];
 
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);

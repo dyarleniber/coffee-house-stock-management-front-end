@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useRouter } from "next/router";
 import { makeStyles } from "@material-ui/core/styles";
 import Paper from "@material-ui/core/Paper";
@@ -9,6 +10,12 @@ import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 import TablePagination from "@material-ui/core/TablePagination";
 import Typography from "@material-ui/core/Typography";
+import Button from "@material-ui/core/Button";
+import Grid from "@material-ui/core/Grid";
+import IconButton from "@material-ui/core/IconButton";
+import KeyboardArrowDownIcon from "@material-ui/icons/KeyboardArrowDown";
+import KeyboardArrowUpIcon from "@material-ui/icons/KeyboardArrowUp";
+import Collapse from "@material-ui/core/Collapse";
 import Skeleton from "@material-ui/lab/Skeleton";
 
 const useStyles = makeStyles((theme) => ({
@@ -22,7 +29,72 @@ const useStyles = makeStyles((theme) => ({
   skeleton: {
     width: "100%",
   },
+  action: {
+    marginTop: theme.spacing(1),
+    marginBottom: theme.spacing(1),
+    marginLeft: theme.spacing(1),
+  },
 }));
+
+function Row({ row, columns, actions }) {
+  const classes = useStyles();
+
+  const [open, setOpen] = useState(false);
+
+  return (
+    <>
+      <TableRow hover>
+        {!!actions && (
+          <TableCell>
+            <IconButton
+              aria-label="expand row"
+              size="small"
+              onClick={() => setOpen(!open)}
+            >
+              {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+            </IconButton>
+          </TableCell>
+        )}
+        {columns.map((column, index) => {
+          const value = Array.isArray(column.name)
+            ? row[column.name[0]][column.name[1]]
+            : row[column.name];
+          return (
+            <TableCell key={`${column.name}-${index}`} align={column.align}>
+              {column.format ? column.format(value) : value}
+            </TableCell>
+          );
+        })}
+      </TableRow>
+      {!!actions && (
+        <TableRow>
+          <TableCell
+            style={{ paddingBottom: 0, paddingTop: 0 }}
+            colSpan={columns.length + 1}
+          >
+            <Collapse in={open} timeout="auto" unmountOnExit>
+              <Grid container>
+                <Grid item>
+                  {actions.map((action) => (
+                    <Button
+                      className={classes.action}
+                      variant="contained"
+                      color={action.color || "primary"}
+                      size="small"
+                      onClick={() => action.handle(row)}
+                    >
+                      {action.label}
+                    </Button>
+                  ))}
+                </Grid>
+              </Grid>
+            </Collapse>
+          </TableCell>
+        </TableRow>
+      )}
+    </>
+  );
+}
 
 export default function CustomTable({
   columns,
@@ -33,6 +105,7 @@ export default function CustomTable({
   page,
   total,
   limit,
+  actions,
 }) {
   const router = useRouter();
 
@@ -64,6 +137,7 @@ export default function CustomTable({
                 <Table stickyHeader aria-label="sticky table">
                   <TableHead>
                     <TableRow>
+                      {!!actions && <TableCell />}
                       {columns.map((column) => (
                         <TableCell key={column.label} align={column.align}>
                           {column.label}
@@ -74,28 +148,24 @@ export default function CustomTable({
                   <TableBody>
                     {!rows?.length && (
                       <TableRow hover>
-                        <TableCell colSpan={columns.length} align={"center"}>
+                        <TableCell
+                          colSpan={
+                            !!actions ? columns.length + 1 : columns.length
+                          }
+                          align={"center"}
+                        >
                           No records found
                         </TableCell>
                       </TableRow>
                     )}
                     {rows.map((row, index) => {
                       return (
-                        <TableRow hover key={`${row.name}-${index}`}>
-                          {columns.map((column) => {
-                            const value = Array.isArray(column.name)
-                              ? row[column.name[0]][column.name[1]]
-                              : row[column.name];
-                            return (
-                              <TableCell
-                                key={`${column.name}-${index}`}
-                                align={column.align}
-                              >
-                                {column.format ? column.format(value) : value}
-                              </TableCell>
-                            );
-                          })}
-                        </TableRow>
+                        <Row
+                          row={row}
+                          columns={columns}
+                          actions={actions}
+                          key={`${row.name}-${index}`}
+                        />
                       );
                     })}
                   </TableBody>

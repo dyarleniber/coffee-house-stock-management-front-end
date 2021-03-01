@@ -1,6 +1,6 @@
 export const getAPIValidationError = (response, message) => {
   const defaultMessage = "Something went wrong, try again later";
-  const { status, data } = response;
+  const { status, data } = response || {};
   switch (status) {
     case 400:
     case 401:
