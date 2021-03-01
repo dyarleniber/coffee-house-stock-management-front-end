@@ -235,7 +235,7 @@ export default function List() {
 }
 
 export async function getServerSideProps(context) {
-  return authMiddleware(async (context) => {
+  return authMiddleware(async () => {
     return {
       props: {},
     };

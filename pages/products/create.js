@@ -248,7 +248,7 @@ export default function Create({ categories }) {
 }
 
 export async function getServerSideProps(context) {
-  return managerMiddleware(async (context) => {
+  return managerMiddleware(async () => {
     const response = await api.get("/categories");
 
     return {

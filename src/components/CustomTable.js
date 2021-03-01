@@ -77,6 +77,7 @@ function Row({ row, columns, actions }) {
                 <Grid item>
                   {actions.map((action) => (
                     <Button
+                      key={action.label}
                       className={classes.action}
                       variant="contained"
                       color={action.color || "primary"}
@@ -150,7 +151,7 @@ export default function CustomTable({
                       <TableRow hover>
                         <TableCell
                           colSpan={
-                            !!actions ? columns.length + 1 : columns.length
+                            actions ? columns.length + 1 : columns.length
                           }
                           align={"center"}
                         >

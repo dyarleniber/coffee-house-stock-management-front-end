@@ -39,7 +39,7 @@ export default function List() {
 }
 
 export async function getServerSideProps(context) {
-  return managerMiddleware(async (context) => {
+  return managerMiddleware(async () => {
     return {
       props: {},
     };

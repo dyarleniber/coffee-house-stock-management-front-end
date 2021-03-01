@@ -4,14 +4,16 @@ export const getAPIValidationError = (response, message) => {
   switch (status) {
     case 400:
     case 401:
-    case 403:
+    case 403: {
       const error = data?.errors?.[0];
       if (error && typeof error === "string") {
         return error;
       }
 
       return message || defaultMessage;
-    default:
+    }
+    default: {
       return defaultMessage;
+    }
   }
 };

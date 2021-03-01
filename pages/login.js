@@ -162,7 +162,7 @@ export default function Login() {
 }
 
 export async function getServerSideProps(context) {
-  return guestMiddleware(async (context) => {
+  return guestMiddleware(async () => {
     return {
       props: {},
     };
